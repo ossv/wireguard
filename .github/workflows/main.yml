@@ -21,4 +21,4 @@
                context: .
                file: ./Dockerfile
                push: true
-               tags: sergeyost/wireguard:latest
+               tags: ${{ secrets.DOCKER_USERNAME }}/wireguard:latest
