@@ -10,9 +10,9 @@ fi
 if [ ! -e /etc/wireguard/postup ]; then
   cat >/etc/wireguard/postup <<EOF
 #!/bin/sh
-iptables -t nat -A POSTROUTING -o $INTERFACE -j MASQUERADE
-iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $TCPMSS
-iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $TCPMSS
+$IPTABLES -t nat -A POSTROUTING -o $INTERFACE -j MASQUERADE
+$IPTABLES -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $TCPMSS
+$IPTABLES -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $TCPMSS
 EOF
   chmod +x /etc/wireguard/postup
 fi
@@ -20,11 +20,11 @@ fi
 if [ ! -e /etc/wireguard/postdown ]; then
   cat >/etc/wireguard/postdown <<EOF
 #!/bin/sh
-iptables -t nat -D POSTROUTING -o $INTERFACE -j MASQUERADE
-iptables -D FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $TCPMSS
-iptables -t mangle -D POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $TCPMSS
+$IPTABLES -t nat -D POSTROUTING -o $INTERFACE -j MASQUERADE
+$IPTABLES -D FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $TCPMSS
+$IPTABLES -t mangle -D POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $TCPMSS
 EOF
-  chmod +x /etc/wireguard/postup
+  chmod +x /etc/wireguard/postdown
 fi
 
 # Initialize first key if it doesn't exist
@@ -75,7 +75,7 @@ wg_up
 
 if [ "$NAT" -eq 1 ]; then
   echo "$(date): setup NAT"
-  iptables -t nat -A POSTROUTING -o "$INTERFACE" -j MASQUERADE
+  $IPTABLES -t nat -A POSTROUTING -o "$INTERFACE" -j MASQUERADE
 fi
 
 # Handle shutdown behavior
@@ -83,7 +83,7 @@ finish() {
   echo "$(date): stopping wireguard"
   wg_down
   if [ "$NAT" -eq 1 ]; then
-    iptables -t nat -D POSTROUTING -o "$INTERFACE" -j MASQUERADE
+    $IPTABLES -t nat -D POSTROUTING -o "$INTERFACE" -j MASQUERADE
   fi
   exit 0
 }

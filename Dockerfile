@@ -12,6 +12,7 @@ LABEL description="Wireguard VPN" org.opencontainers.image.authors="github.com/d
 # CLIENTCONTROL_NO_LOGS=0 - Turn off clientcontrol logs
 # WG_CLIENTS_UNSAFE_PERMISSIONS=0 - Use unsafe (744) permissions in /etc/wireguard/clients
 # TCPMSS=1400
+# IPTABLES=iptables
 
 ENV \
   NAT=1 \
@@ -23,6 +24,7 @@ ENV \
   CLIENTCONTROL_NO_LOGS=0 \
   WG_CLIENTS_UNSAFE_PERMISSIONS=0 \
   TCPMSS=1400 \
+  IPTABLES=iptables \
   PATH="/srv:$PATH"
 
 VOLUME /etc/wireguard
@@ -34,7 +36,7 @@ COPY start restart addclient clientcontrol /srv/
 # Install WireGuard and dependencies
 # hadolint ignore=DL3008
 RUN chmod 755 /srv/* \
-    && apk add --no-cache wireguard-tools iptables inotify-tools net-tools libqrencode-tools openresolv procps curl iproute2
+    && apk add --no-cache wireguard-tools iptables iptables-legacy inotify-tools net-tools libqrencode-tools openresolv procps curl iproute2
 
 HEALTHCHECK --interval=5s --timeout=5s CMD /sbin/ip -o li sh wg0 || exit 1
 
